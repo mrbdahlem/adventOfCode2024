@@ -1,7 +1,9 @@
 import helper
-import re
 
-data = helper.load_data(1)
+day = int(__file__.split("\\")[-1].split(".")[0])
+print ("Day", day)
+
+data = helper.load_data(day)
 
 lines = data.splitlines()
 
@@ -9,7 +11,7 @@ left = []
 right = []
 
 for line in lines:
-    parts = re.split(r'\s+', line)
+    parts = line.split('   ')
     left.append(int(parts[0]))
     right.append(int(parts[1]))
 

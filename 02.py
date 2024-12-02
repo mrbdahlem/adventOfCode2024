@@ -1,7 +1,9 @@
 import helper
-import re
 
-data = helper.load_data(2)
+day = int(__file__.split("\\")[-1].split(".")[0])
+print ("Day", day)
+
+data = helper.load_data(day)
 
 lines = data.splitlines()
 
