@@ -1,0 +1,4 @@
+.session
+*.pyc
+__pycache__/**
+data/**
