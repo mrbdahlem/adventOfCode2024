@@ -42,3 +42,9 @@ def request(day):
     except urllib.error.HTTPError as e:
         print ("Error fetching data:", e)
         return None
+    
+if __name__ == "__main__":
+    print ("Running helper")
+    print ("Year:", year)
+    
+
