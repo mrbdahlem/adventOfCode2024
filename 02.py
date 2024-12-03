@@ -8,6 +8,10 @@ data = helper.load_data(day)
 lines = data.splitlines()
 
 def checkSafe(line):
+    ''' Check if the level changes in the given line are safe.
+        Changes are safe if they are constantly decreasing or increasing, and
+        the change is between 1 and 3 (inclusive).
+    '''
     levels = [int(x) for x in line.split(" ")]
     
     dir = None
@@ -27,6 +31,10 @@ def checkSafe(line):
     return True
 
 def checkSafe2(line):
+    '''
+    Check if the level changes in the given line are safe.
+    At most one unsafe change is allowed.
+    '''
     if checkSafe(line):
         return True
     
@@ -38,7 +46,8 @@ def checkSafe2(line):
             return True
         
     return False
-    
+
+# Count the number of safe lines
 safeCount = 0
 for line in lines:    
     if checkSafe(line) == True:
@@ -46,6 +55,7 @@ for line in lines:
 
 print("Part 1:", safeCount)
 
+# Count the number of safe lines, allowing for one unsafe change
 safeCount = 0
 for line in lines:
     if checkSafe2(line) == True:
