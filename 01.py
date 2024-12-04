@@ -41,5 +41,3 @@ for num in left:
 print ("Part 2:", similarity)
 
 # 499500 - low
-
-
