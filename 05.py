@@ -1,8 +1,11 @@
 import helper
 from functools import cmp_to_key
+from datetime import datetime
 
 day = int(__file__.split("\\")[-1].split(".")[0])
 print ("Day", day)
+
+tstart = datetime.now()
 
 data = helper.load_data(day)
 # data = helper.load_data(f"{day:02}-samp")
@@ -22,6 +25,9 @@ for spec in ruleSpec:
     rule = mustPrecede.get(pages[0], [])
     rule.append(pages[1])
     mustPrecede[pages[0]] = rule
+
+print("------------------------")
+tparsed = datetime.now()
 
 # Solve Part 1
 
@@ -57,6 +63,8 @@ for update in updates:
         totalMids += int(pages[len(pages) // 2])
 
 print("Part 1: ", totalMids)
+
+tp1 = datetime.now()
 
 # Solve Part 2
 
@@ -96,3 +104,10 @@ for update in bad:
     totalBadMids += int(pages[len(pages) // 2])
 
 print("Part 2: ", totalBadMids)
+
+tp2 = datetime.now()
+
+print("------------------------")
+print("Parse Time:", (tparsed - tstart).microseconds / 1000, "ms")
+print("Part 1 Time:", (tp1 - tparsed).microseconds / 1000, "ms")
+print("Part 2 Time:", (tp2 - tp1).microseconds / 1000, "ms")
