@@ -70,14 +70,14 @@ def checkProceeds(a, b):
 
     # if the second page is in the list, the first page must precede the second
     if b in rule:
-        return 1
+        return -1
 
     # get the list of pages that the second page must preceed
     rule = mustPrecede.get(b, [])
 
     # if the first page is in the list, the second page must precede the first
     if a in rule:
-        return -1
+        return 1
 
     # if neither page must precede the other, return 0
     return 0
