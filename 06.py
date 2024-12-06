@@ -3,7 +3,7 @@ import helper
 from datetime import datetime
 from collections import defaultdict
 
-day = int(__file__.split("\\")[-1].split(".")[0])
+day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
 print ("Day", day)
 
 tstart = datetime.now()

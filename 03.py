@@ -1,7 +1,7 @@
 import helper
 import re
 
-day = int(__file__.split("\\")[-1].split(".")[0])
+day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
 print ("Day", day)
 
 data = helper.load_data(day)

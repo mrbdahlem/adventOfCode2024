@@ -2,7 +2,7 @@ import helper
 from functools import cmp_to_key
 from datetime import datetime
 
-day = int(__file__.split("\\")[-1].split(".")[0])
+day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
 print ("Day", day)
 
 tstart = datetime.now()
