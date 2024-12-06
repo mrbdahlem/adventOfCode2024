@@ -1,4 +1,8 @@
 name: Update AoC Badges
+
+permissions:
+  contents: write
+  
 on:
   #schedule:                                      # run workflow based on schedule
   #  - cron: '6 11 1-29 12 *'                      # from the 1. December till 25. December every day at 5:06am (avoid load at full hours)
@@ -31,6 +35,6 @@ jobs:
       - uses: stefanzweifel/git-auto-commit-action@v5.0.0      # Step that pushes these local changes back to your github repo
         with:
           commit_message: Update badges
-          file_pattern: README.md
+          file_pattern: README.md          
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
