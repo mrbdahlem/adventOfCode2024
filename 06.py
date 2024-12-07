@@ -72,14 +72,14 @@ tp1 = datetime.now()
 
 # Solve the second part
 
-def loop(adjustedMap):
+def loop(obsR, obsC):
     """ Check if the path from the starting point loops back on itself """
     visited = set()
     r, c = start
     dir = 'u'
     
     # loop until we exit the map
-    while (r >= 0 and r < len(adjustedMap)) and (c >= 0 and c < len(adjustedMap[r])):
+    while (r >= 0 and r < len(mp)) and (c >= 0 and c < len(mp[r])):
         # if we have visited this point before, moving in the current direction, we have a loop
         if (r, c, dir) in visited:
             return True
@@ -90,8 +90,8 @@ def loop(adjustedMap):
         # check if we can move forward or if there is an obsticle and we need to turn
         nr, nc = nextPos(r, c, dir)
         ndir = dir
-        while ((nr >= 0 and nr < len(adjustedMap)) and (nc >= 0 and nc < len(adjustedMap[nr])) and
-                adjustedMap[nr][nc] == "#"):
+        while ((nr >= 0 and nr < len(mp)) and (nc >= 0 and nc < len(mp[nr])) and 
+               (mp[nr][nc] == "#" or (nr==obsR and nc==obsC))):
             ndir = nextDir(ndir)
             nr, nc = nextPos(r, c, ndir)
 
@@ -108,10 +108,7 @@ for point in path.keys():
     if point == start:
         continue
 
-    newmap = copy.deepcopy(mp)
-
-    newmap[point[0]][point[1]] = "#"
-    if loop(newmap):
+    if loop(point[0], point[1]):
         obs.add(point)
 
 print("Part 2: ", len(obs), "- 1025 low, !1510, !1596")
