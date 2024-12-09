@@ -99,16 +99,13 @@ def calcChecksum2(blocks):
     pos = 0 # the current position in the disk
 
     for block in blocks:
-        # If the block is free space, move the position pointer to the next block
-        if block[0] == -1:
-            pos += block[1]
-            continue
-        
+        # If the block is not free space, 
+        if block[0] != -1:
+            # add the product of the file number and the position of EACH block in the file to the checksum
+            checksum += int((block[1] / 2) * (2 * pos + block[1] - 1)) * block[0]
+        # move the position to the beginning of the next block
+        pos += block[1]
 
-        # Add the product of the file number and the position of each block in the file to the checksum
-        for _ in range(0, block[1]):
-            checksum += pos * block[0]
-            pos += 1
     return checksum 
 
 def find(id, blocks):
