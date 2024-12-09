@@ -1,3 +1,4 @@
+from types import SimpleNamespace
 import helper
 from datetime import datetime
 
@@ -26,10 +27,16 @@ def run(data):
 ################################
 
 def parse(data):
-    return data
+    parsed = SimpleNamespace()
+    parsed.data = data
+    return parsed
+
+################################
 
 def part1(data):
     return 0
+
+################################
 
 def part2(data):
     return 0
