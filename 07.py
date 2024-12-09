@@ -1,26 +1,20 @@
+from types import SimpleNamespace
 import helper
 from datetime import datetime
 
-day = int(__file__.split("\\")[-1].split(".")[0])
-print ("Day", day)
+def parse(data):
+    parsed = SimpleNamespace()
+    
+    lines = data.split("\n")
 
-tstart = datetime.now()
+    # break each line down into an answer, and the numbers that form the equation
+    parsed.ans = [int(line.split(':')[0]) for line in lines if line != '']
+    eq = [line.split(':')[1].split(' ')[1:] for line in lines if line != '']
+    parsed.eq = [[int(x) for x in line] for line in eq]
+    return parsed
 
-# load the data for this day (or a sample file)
-data = helper.load_data(day)
-# data = helper.load_data(f"{day:02}-samp")
+################################
 
-lines = data.split("\n")
-
-# break each line down into an answer, and the numbers that form the equation
-ans = [int(line.split(':')[0]) for line in lines if line != '']
-eq = [line.split(':')[1].split(' ')[1:] for line in lines if line != '']
-eq = [[int(x) for x in line] for line in eq]
-
-print("------------------------")
-tparsed = datetime.now()
-
-# Solve the first part
 def calibrate (ans, nums, ops, eq):
     """ 
     Recursively determine the correct order of operations so the equation equals the answer
@@ -47,31 +41,66 @@ def calibrate (ans, nums, ops, eq):
                 return True
             
     return False
-        
-# Solve the first part by counting the equations that can be calibrated to the answer using
-# addition and multiplication
-total = 0
-for i in range(len(ans)):
-    if (calibrate(ans[i], eq[i][1:], ['+', '*'], lambda: eq[i][0]) != False):
-        total += ans[i]
 
+def part1(data):
+    total = 0
+    for i in range(len(data.ans)):
+        if (calibrate(data.ans[i], data.eq[i][1:], ['+', '*'], lambda: data.eq[i][0]) != False):
+            total += data.ans[i]
+    return total
 
-print("Part 1: ", total)
+################################
 
-tp1 = datetime.now()
+def part2(data):
+    total = 0
+    for i in range(len(data.ans)):
+        if (calibrate(data.ans[i], data.eq[i][1:], ['+', '*', '||'], lambda: data.eq[i][0]) != False):
+            total += data.ans[i]
+    return total
 
-# Solve the second part by counting the equations that can be calibrated to the answer using addition,
-# multiplication, and concatenation
-total2 = 0
-for i in range(len(ans)):
-    if (calibrate(ans[i], eq[i][1:], ['+', '*', '||'], lambda: eq[i][0]) != False):
-        total2 += ans[i]
+################################
 
-print("Part 2: ", total2)
+def run(data):
+    """
+    Run both parts of the day
+    """
+    tstart = datetime.now()
+    parsed = parse(data)
+    print("------------------------")
+    tparsed = datetime.now()
+    
+    # Solve the first part
+    print("Part 1: ", part1(parsed))
+    tp1 = datetime.now()
 
-tp2 = datetime.now()
+    # Solve the second part
+    print("Part 2: ", part2(parsed))
+    tp2 = datetime.now()
 
-print("------------------------")
-print(f"Parse Time: {((tparsed - tstart).total_seconds() * 1000):.3f} ms")
-print(f"Part 1 Time: {(tp1 - tparsed).total_seconds() * 1000:.3f} ms")
-print(f"Part 2 Time: {(tp2 - tp1).total_seconds() * 1000:.3f} ms")
+    print("------------------------")
+    parseTime = (tparsed - tstart).total_seconds() * 1000
+    part1Time = (tp1 - tparsed).total_seconds() * 1000
+    part2Time = (tp2 - tp1).total_seconds() * 1000
+    print(f"Parse Time: {parseTime:,.03f} ms")
+    print(f"Part 1 Time: {part1Time:,.03f} ms")
+    print(f"Part 2 Time: {part2Time:,.03f} ms")
+
+################################
+
+day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
+print ("Day", day)
+
+# load a sample data file for this day, if it exists
+if helper.exists(f"{day:02}-samp"):
+    samp = helper.load_data(f"{day:02}-samp")
+else:
+    samp = None
+
+# load the actual data for this day
+data = helper.load_data(day)
+
+if samp:
+    print("--------------- Sample Data ---------------")
+    run(samp)
+print("-------------------------------------------")
+run(data)
