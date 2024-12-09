@@ -1,6 +1,7 @@
 import datetime
 import os
 import subprocess
+import helper
 
 # get the current day of the month
 day = datetime.datetime.now().day
@@ -31,5 +32,7 @@ else:
         contents = template.read()
     with open(script, "w") as newScript:
         newScript.write(contents)
+    print(f"{scriptDay:02}.py created. Downloading input to data/{scriptDay:02}.txt.")
+    helper.load_data(scriptDay)
 
 
