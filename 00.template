@@ -1,38 +1,53 @@
 import helper
 from datetime import datetime
 
+def run(data):
+    """
+    Run both parts of the day
+    """
+    tstart = datetime.now()
+    parsed = parse(data)
+    print("------------------------")
+    tparsed = datetime.now()
+
+    # Solve the first part
+    print("Part 1: ", part1(parsed))
+    tp1 = datetime.now()
+
+    # Solve the second part
+    print("Part 2: ", part2(parsed))
+    tp2 = datetime.now()
+
+    print("------------------------")
+    print(f"Parse Time: {((tparsed - tstart).total_seconds() * 1000):.3f} ms")
+    print(f"Part 1 Time: {(tp1 - tparsed).total_seconds() * 1000:.3f} ms")
+    print(f"Part 2 Time: {(tp2 - tp1).total_seconds() * 1000:.3f} ms")
+
+################################
+
+def parse(data):
+    return data
+
+def part1(data):
+    return 0
+
+def part2(data):
+    return 0
+
+################################
+
 day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
 print ("Day", day)
 
-tstart = datetime.now()
+# load a sample data file for this day, if it exists
+if helper.exists(f"{day:02}-samp"):
+    samp = helper.load_data(f"{day:02}-samp")
+else:
+    samp = None
 
-# load the data for this day (or a sample file)
+# load the actual data for this day
 data = helper.load_data(day)
-# data = helper.load_data(f"{day:02}-samp")
 
-print("------------------------")
-tparsed = datetime.now()
-
-# Solve the first part
-ans = 0
-
-
-
-print("Part 1: ", ans)
-
-tp1 = datetime.now()
-
-# Solve the second part
-ans2 = 0
-
-
-
-print("Part 2: ", ans2)
-
-
-tp2 = datetime.now()
-
-print("------------------------")
-print(f"Parse Time: {((tparsed - tstart).total_seconds() * 1000):.3f} ms")
-print(f"Part 1 Time: {(tp1 - tparsed).total_seconds() * 1000:.3f} ms")
-print(f"Part 2 Time: {(tp2 - tp1).total_seconds() * 1000:.3f} ms")
+if samp:
+    run(samp)
+run(data)

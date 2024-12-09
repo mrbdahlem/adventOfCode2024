@@ -1,10 +1,21 @@
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
 
 year = 2024
 
+def exists(day):
+    """ Check if the data file for the given day (or sample file) exists """
+    if isinstance(day, int):
+        filename = f'./data/{day:02}.txt'
+    else:
+        filename = f'./data/{day}.txt'
+    return os.path.exists(filename)
+
 def load_data(day):
+    """ Load the data file for the given day (or sample file). If the file does not exist,
+      fetch it from the server. """
     if isinstance(day, int):
         filename = f'./data/{day:02}.txt'
     else:
@@ -16,6 +27,10 @@ def load_data(day):
         with open(filename) as f:
             return f.read()
     except FileNotFoundError:
+        if not isinstance(day, int) or day < 1 or day > 25:
+            print ("File not found")
+            return None
+        
         print ("File not found, fetching from server")
         response = request(day)
 
@@ -25,6 +40,7 @@ def load_data(day):
             return response
         
 def request(day):
+    """ Fetch the data for the given day from the server """
     url = f'https://adventofcode.com/2024/day/{day}/input'
     headers = {
         'cookie': 'session=' + open('.session').read().strip()
@@ -44,7 +60,5 @@ def request(day):
         return None
     
 if __name__ == "__main__":
-    print ("Running helper")
-    print ("Year:", year)
+    print ("Running helper. You didn't want to do that.")
     
-
