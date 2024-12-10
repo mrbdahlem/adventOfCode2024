@@ -58,7 +58,7 @@ else:
 # load the actual data for this day
 data = helper.load_data(day)
 
-if samp:
+if samp and len(samp) > 0:
     print("--------------- Sample Data ---------------")
     run(samp)
 print("-------------------------------------------")

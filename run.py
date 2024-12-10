@@ -34,5 +34,9 @@ else:
         newScript.write(contents)
     print(f"{scriptDay:02}.py created. Downloading input to data/{scriptDay:02}.txt.")
     helper.load_data(scriptDay)
+    sampleFile = f"data/{scriptDay:02}-samp.txt"
+    print(f"Creating sample input file {sampleFile}.")
+    with open(sampleFile, "w") as sample:
+        sample.write("")
 
 
