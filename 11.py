@@ -4,6 +4,7 @@ from datetime import datetime
 
 from collections import defaultdict
 import re
+from functools import cache
 
 def parse(data):
     parsed = SimpleNamespace()
@@ -43,14 +44,11 @@ def part1(data):
 
 ################################
 
-def findNumDescendants(stone, blinks, memo=dict()):
+@cache # memoize the results of this function to avoid recalculating the same values
+def findNumDescendants(stone, blinks):
     """ 
     Find the number of descendants of a particular stone after a certain number of blinks
     """
-
-    # if we've already calculated this, return the result
-    if (stone, blinks) in memo:
-        return memo[(stone, blinks)]
     
     # if we've run out of blinks this stone is the last descendant
     if blinks == 0:
@@ -59,8 +57,7 @@ def findNumDescendants(stone, blinks, memo=dict()):
     # if the stone's inscription is 0, it transforms into 1
     if stone == 0:
         # find the number of descendants of 1 after blinks - 1 and store it in the memo
-        desc = findNumDescendants(1, blinks - 1, memo)
-        memo[(stone, blinks)] = desc
+        desc = findNumDescendants(1, blinks - 1)
         return desc
     
     # if the stone has an even number of digits, it splits in half
@@ -69,20 +66,20 @@ def findNumDescendants(stone, blinks, memo=dict()):
         name1 = int(name[:len(name)//2])
         name2 = int(name[len(name)//2:])
         # find the number of descendants of each half after blinks - 1 and store it in the memo
-        desc = findNumDescendants(name1, blinks - 1, memo) + findNumDescendants(name2, blinks - 1, memo)
-        memo[(stone, blinks)] = desc
+        desc = findNumDescendants(name1, blinks - 1) + findNumDescendants(name2, blinks - 1)
         return desc
 
     # otherwise, the stone's inscription is multiplied by 2024
     # find the number of descendants of the new stone after blinks - 1 and store it in the memo
-    desc = findNumDescendants(stone * 2024, blinks - 1, memo)
-    memo[(stone, blinks)] = desc
+    desc = findNumDescendants(stone * 2024, blinks - 1)
     return desc
 
 def part2(data):
     """
     Find the total number of descendants of all stones after 75 blinks
     """
+    findNumDescendants.cache_clear() # clear the memoization cache
+
     count = 0
     # find the number of descendants of each stone after 75 blinks and add it to the total
     for stone in data.line:
