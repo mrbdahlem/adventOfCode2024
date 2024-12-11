@@ -85,6 +85,8 @@ def part2(data):
     for stone in data.line:
         count += findNumDescendants(stone, 75)
 
+    print (findNumDescendants.cache_info())
+
     return count
 
 ################################
