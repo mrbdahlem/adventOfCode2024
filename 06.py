@@ -73,7 +73,7 @@ tp1 = datetime.now()
 # Solve the second part
 
 def loop(obsR, obsC):
-    """ Check if the path from the starting point loops back on itself """
+    """ Check if the path from the starting point loops back on itself if an obsticle has been added at (obsR, obsC) """
     visited = set()
     r, c = start
     dir = 'u'
