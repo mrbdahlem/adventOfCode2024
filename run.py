@@ -22,7 +22,7 @@ while scriptDay < 1 or scriptDay > 25:
     except:
         scriptDay = -1
 
-script = str(scriptDay).zfill(2) + ".py"
+script = f"{scriptDay:02}.py"
 
 if os.path.exists(script):
     subprocess.run(["python", script])
