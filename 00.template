@@ -2,6 +2,7 @@ from types import SimpleNamespace
 import helper
 from datetime import datetime
 
+from copy import copy, deepcopy
 from collections import defaultdict
 import re
 from functools import cache
