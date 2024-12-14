@@ -112,8 +112,57 @@ def part2(data):
     for r in data.robots:
         r.reset()
 
+    
+    # Move the robots repeatedly, looking for a loop in x and y positions to determine an
+    # upper bound on the number of iterations
+    locs = []
+    xloop = None
+    yloop = None
+    i = 0
+    while(not (xloop and yloop)):
+        loc = []
+
+        # Move the robots
+        for robot in data.robots:
+            robot.move(data.w, data.h)
+            loc.append(robot.pos)
+
+        # Check for a loop in the x positions of the robots    
+        if not xloop:
+            # compare the current location to all previous locations
+            for k,l in enumerate(locs):
+                loop = True
+                for j,r in enumerate(data.robots):
+                    if r.pos[0] != l[j][0]:
+                        loop = False
+                        break
+                if loop:
+                    print(f"Found a loop in x at {i} from {k} of {i-k} iterations")
+                    xloop = (k, i-k)
+                    break
+        # Check for a loop in the y positions of the robots
+        if not yloop:
+            # compare the current location to all previous locations
+            for k,l in enumerate(locs):
+                loop = True
+                for j,r in enumerate(data.robots):
+                    if r.pos[1] != l[j][1]:
+                        loop = False
+                        break
+                if loop:
+                    print(f"Found a loop in y at {i} from {k} of {i-k} iterations")
+                    yloop = (k, i-k)
+                    break
+
+        locs.append(loc)
+        i+=1
+        
+    # Reset the robots to their original positions
+    for r in data.robots:
+        r.reset()
+
     # Move the robots repeatedly, looking for a cluster
-    for i in range (1, 10000):
+    for i in range (1, xloop[1] * yloop[1]):
 
         # Move the robots
         for robot in data.robots:
