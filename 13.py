@@ -7,28 +7,30 @@ from collections import defaultdict
 import re
 from functools import cache
 
-def machine(data):
-    m = SimpleNamespace()
-    lines = data.split("\n")
+class Machine:
+    def __init__(self, data):
+        lines = data.split("\n")
 
-    num = r"(\d+)"
+        num = r"(\d+)"
 
-    m.ax, m.ay = [int(x) for x in re.findall(num, lines[0])]
-    m.bx, m.by = [int(x) for x in re.findall(num, lines[1])]
-    m.px, m.py = [int(x) for x in re.findall(num, lines[2])]
-
-    return m
+        self.ax, self.ay = [int(x) for x in re.findall(num, lines[0])]
+        self.bx, self.by = [int(x) for x in re.findall(num, lines[1])]
+        self.px, self.py = [int(x) for x in re.findall(num, lines[2])]
 
 def parse(data):
     parsed = SimpleNamespace()
     parts = data.strip().split("\n\n")
 
-    parsed.machines = [machine(part) for part in parts]
+    parsed.machines = [Machine(part) for part in parts]
 
     return parsed
 
 ################################
 def solve(m):
+    """
+    Determine the number of a presses and b presses to get the claw from 0,0 to the prize location
+    return the cost - 3*a presses + 1*b presses or None if it is not possible to reach the prize
+    """
     d = (m.ax*m.by - m.bx*m.ay)
     a = (m.px*m.by - m.bx*m.py) / d
 
@@ -43,6 +45,9 @@ def solve(m):
     return int(a*3 + b)
 
 def part1(data):
+    """
+    Determine the total cost for all machines that can reach the prize
+    """
     total = 0
     for m in data.machines:
         if (s := solve(m)) is not None:
@@ -53,6 +58,9 @@ def part1(data):
 ################################
 
 def part2(data):
+    """
+    Ooops, the prize location is 10^12 off, determine the total cost for all machines that can reach the prize now
+    """
     total = 0
     for m in data.machines:
         m.px += 10000000000000
