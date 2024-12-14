@@ -88,13 +88,13 @@ def part2(data):
     for r in data.robots:
         r.reset()
 
-    start = 1000
+    start = 2000
     
     for i in range (1, start):
         for robot in data.robots:
             robot.move(data.w, data.h)
 
-    for i in range(start, start+1000):
+    for i in range(start, start+10000):
 
         # Create a new image with a white background
         img = Image.new('RGB', (data.w, data.h), color='white')
@@ -107,7 +107,7 @@ def part2(data):
             pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
         
         # Save the image
-        img.save(f'data/img{i}.png')
+        img.save(f'data/imgs/img{i}.png')
 
         # robotMap(data.robots, data.w, data.h)
         # print (i)
