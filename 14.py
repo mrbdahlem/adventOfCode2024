@@ -7,6 +7,7 @@ from collections import defaultdict
 import re
 from functools import cache
 from PIL import Image
+import math
 
 class Robot:
     def __init__(self, data):
@@ -29,6 +30,7 @@ class Robot:
 
     def reset(self):
         self.pos = self.originalPos
+
 
 def parse(data):
     parsed = SimpleNamespace()
@@ -59,7 +61,7 @@ def robotMap(robots, w, h):
 def safety(robots, w, h):
     q=[0, 0, 0, 0]
 
-    print(robotMap(robots, w, h))
+    # print(robotMap(robots, w, h))
     for robot in robots:
         if (robot.pos[0] < w // 2):
             if (robot.pos[1] < h // 2):
@@ -72,7 +74,7 @@ def safety(robots, w, h):
             elif (robot.pos[1] > h // 2):
                 q[3] += 1
             
-    print(q, sum(q))
+    # print(q, sum(q))
     return q[0] * q[1] * q[2] * q[3]
 
 def part1(data):
@@ -85,35 +87,43 @@ def part1(data):
 ################################
 
 def part2(data):
+    ans = set()
+
     for r in data.robots:
         r.reset()
 
-    start = 1000
-    
-    for i in range (1, start):
-        for robot in data.robots:
-            robot.move(data.w, data.h)
-
-    for i in range(start, start+1000):
-
-        # Create a new image with a white background
-        img = Image.new('RGB', (data.w, data.h), color='white')
-
-        # Get the pixel access object
-        pixels = img.load()
+    for i in range (1, 10000):
 
         for robot in data.robots:
             robot.move(data.w, data.h)
-            pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
-        
-        # Save the image
-        img.save(f'data/img{i}.png')
 
+        for n, robot in enumerate(data.robots):
+            count = 0
+            for robot2 in data.robots[n+1:]:
+                if math.dist(robot.pos, robot2.pos) < 5:
+                    count+=1
+
+            if count > 30:
+                ans.add(i)
+                # Create a new image with a white background
+                img = Image.new('RGB', (data.w, data.h), color='white')
+
+                # Get the pixel access object
+                pixels = img.load()
+
+                for robot in data.robots:
+                    pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
+                
+                # Save the image
+                img.save(f'data/img{i}.png')
+
+        if (i % 200 == 0):
+            print(i)
         # robotMap(data.robots, data.w, data.h)
         # print (i)
         # input()
 
-    return 0
+    return ans
 
 ################################
 
@@ -127,7 +137,7 @@ def run(data):
     tparsed = datetime.now()
     
     # Solve the first part
-    print("Part 1: ", part1(parsed), "202294200 - low")
+    print("Part 1: ", part1(parsed))
     tp1 = datetime.now()
 
     # Solve the second part
