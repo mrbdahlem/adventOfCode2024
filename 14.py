@@ -123,7 +123,7 @@ def part2(data):
         for n, robot in enumerate(data.robots[:len(data.robots)//10]):
             # Check if the robot is close to a bunch of other robots
             count = 0
-            for robot2 in data.robots[len(data.robots)//2:]:
+            for robot2 in data.robots:
                 if math.dist(robot.pos, robot2.pos) < 5:
                     count+=1
 
