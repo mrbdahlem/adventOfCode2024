@@ -6,8 +6,8 @@ from copy import copy, deepcopy
 from collections import defaultdict
 import re
 from functools import cache
-from PIL import Image
-import math
+from PIL import Image, ImageDraw, ImageFont
+import asyncio
 
 class Robot:
     """
@@ -51,20 +51,32 @@ def parse(data):
     return parsed
 
 ################################
-def robotMap(robots, w, h, name=''):
+async def saveGif(images, name):
+    """
+    Save a list of images as a GIF
+    """
+    images[0].save(name, save_all=True, append_images=images[1:], duration=100, loop=0)
+
+def robotMap(robots, w, h, name='', num=None):
     """
     Save a map of the robots
     """
-    # Create a new image with a white background
-    img = Image.new('RGB', (w, h), color='white')
+    # Create a new image with a black background
+    img = Image.new('RGB', (w, h), color='black')
 
     # mark the robots on the image
     pixels = img.load()
     for robot in robots:
         pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
     
+    if num != None:
+        draw = ImageDraw.Draw(img)
+        font = ImageFont.truetype('DejaVuSansMono.ttf', 10)
+        draw.text((0, 10), f"{num}", fill=(255, 255, 255), font=font)
+
+    return img
     # Save the image
-    img.save(f'data/img{name}.png')
+    # img.save(f'data/img{name}.png')
 
 
 def safety(robots, w, h):
@@ -116,7 +128,9 @@ def part2(data):
     # Reset the robots to their original positions
     for rob in data.robots:
         rob.reset()
-    
+
+    data.images = [robotMap(data.robots, data.w, data.h, num=0)]
+
     # Move the robots repeatedly, looking for a loop in x and y positions to determine an
     # upper bound on the number of iterations
     stateOne = []
@@ -155,7 +169,9 @@ def part2(data):
             # Record the number of iterations
             ans.add(i)
             print(f"!!!!{i}!!!!")
-            robotMap(data.robots, data.w, data.h, i)                
+            robotMap(data.robots, data.w, data.h).save(f'data/day14{data.stage}-{i}.png')
+
+        data.images.append(robotMap(data.robots, data.w, data.h, num=i))
 
         # Print a status message every 200 iterations
         if (i % 500 == 0):
@@ -163,18 +179,23 @@ def part2(data):
 
         i += 1
 
+    asyncio.create_task(saveGif(data.images, f'data/day14{data.stage}.png'))
+
     return ans
 
 ################################
 
-def run(data):
+def run(data, stage):
     """
     Run both parts of the day
     """
+
     tstart = datetime.now()
     parsed = parse(data)
     print("------------------------")
     tparsed = datetime.now()
+
+    parsed.stage = stage
     
     # Solve the first part
     print("Part 1: ", part1(parsed))
@@ -194,20 +215,24 @@ def run(data):
 
 ################################
 
-day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
-print ("Day", day)
+async def main():
+    day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
+    print ("Day", day)
 
-# load a sample data file for this day, if it exists
-if helper.exists(f"{day:02}-samp"):
-    samp = helper.load_data(f"{day:02}-samp")
-else:
-    samp = None
+    # load a sample data file for this day, if it exists
+    if helper.exists(f"{day:02}-samp"):
+        samp = helper.load_data(f"{day:02}-samp")
+    else:
+        samp = None
 
-# load the actual data for this day
-data = helper.load_data(day)
+    # load the actual data for this day
+    data = helper.load_data(day)
 
-# if samp:
-#     print("--------------- Sample Data ---------------")
-#     run(samp)
-print("-------------------------------------------")
-run(data)
+    if samp:
+        print("--------------- Sample Data ---------------")
+        run(samp, 'samp')
+
+    print("-------------------------------------------")
+    run(data, 'full')
+
+asyncio.run(main())
