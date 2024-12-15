@@ -44,29 +44,27 @@ def parse(data):
     parsed = SimpleNamespace()
     lines = data.strip().split('\n')
     parsed.robots = [Robot(line) for line in lines]
-    parsed.w, parsed.h = 101, 103
+
+    # Determine the width and height of the grid
+    parsed.w = max([robot.pos[0] for robot in parsed.robots]) + 1
+    parsed.h = max([robot.pos[1] for robot in parsed.robots]) + 1
     return parsed
 
 ################################
-def robotMap(robots, w, h):
+def robotMap(robots, w, h, name=''):
     """
-    Print a map of the robots
+    Save a map of the robots
     """
-    for r in range(h):
-        for c in range(w):
-            count = 0
-            for robot in robots:
-                if robot.pos == (c, r):
-                    count += 1
-            if r != h // 2:
-                if c != w // 2 and count != 0:
-                    print (count, end='')
-                else:
-                    print (' ', end='')
+    # Create a new image with a white background
+    img = Image.new('RGB', (w, h), color='white')
 
-        if r == h // 2:
-            print ()
-        print()
+    # mark the robots on the image
+    pixels = img.load()
+    for robot in robots:
+        pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
+    
+    # Save the image
+    img.save(f'data/img{name}.png')
 
 
 def safety(robots, w, h):
@@ -181,17 +179,8 @@ def part2(data):
                 # Record the number of iterations
                 ans.add(i)
                 print(f"!!!!{i}!!!!")
-
-                # Create a new image with a white background
-                img = Image.new('RGB', (data.w, data.h), color='white')
-
-                # mark the robots on the image
-                pixels = img.load()
-                for robot in data.robots:
-                    pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
-                
-                # Save the image
-                img.save(f'data/img{i}.png')
+                robotMap(data.robots, data.w, data.h, i)                
+                break
 
         # Print a status message every 200 iterations
         if (i % 200 == 0):
