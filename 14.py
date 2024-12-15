@@ -51,11 +51,18 @@ def parse(data):
     return parsed
 
 ################################
-async def saveGif(images, name):
+async def saveImage(images, name, width, height):
     """
-    Save a list of images as a GIF
+    Save a list of images as a contact sheet
     """
-    images[0].save(name, save_all=True, append_images=images[1:], duration=100, loop=0)
+    imgwidth, imgheight = images[0].size
+
+    img = Image.new('RGB', (width * (imgwidth + 1), height * (imgheight + 1)), color='white')
+
+    for x in range(width):
+        for y in range(height):
+            img.paste(images[x + y * width], (x * (imgwidth + 1), y * (imgheight + 1)))
+    img.save(name)
 
 def robotMap(robots, w, h, name='', num=None):
     """
@@ -69,14 +76,16 @@ def robotMap(robots, w, h, name='', num=None):
     for robot in robots:
         pixels[robot.pos[0], robot.pos[1]] = (0,255,0)
     
+    # if a frame number is provided, add it to the image
     if num != None:
         draw = ImageDraw.Draw(img)
         font = ImageFont.truetype('DejaVuSansMono.ttf', 10)
-        draw.text((0, 10), f"{num}", fill=(255, 255, 255), font=font)
+        draw.text((0, 0), f"{num}", fill=(255, 255, 255), font=font)
+
+    if name:
+        img.save(name)
 
     return img
-    # Save the image
-    # img.save(f'data/img{name}.png')
 
 
 def safety(robots, w, h):
@@ -151,6 +160,7 @@ def part2(data):
                     # compare the current state to the first state
                     if robot.pos[0] == stateOne[r][0]:
                         xloop = i-1
+                        data.xloop=xloop
                         print(f"Found a loop in x at {xloop} iterations")
                 
                 # Check for a loop in the y positions of the robots
@@ -158,6 +168,7 @@ def part2(data):
                     # compare the current state to all the first state
                     if robot.pos[1] == stateOne[r][1]:
                         yloop = i-1
+                        data.yloop=yloop
                         print(f"Found a loop in y at {yloop} iterations")
 
             if r % 2 == 0:
@@ -169,7 +180,7 @@ def part2(data):
             # Record the number of iterations
             ans.add(i)
             print(f"!!!!{i}!!!!")
-            robotMap(data.robots, data.w, data.h).save(f'data/day14{data.stage}-{i}.png')
+            robotMap(data.robots, data.w, data.h, name=f'data/day14{data.stage}-{i}.png')
 
         data.images.append(robotMap(data.robots, data.w, data.h, num=i))
 
@@ -178,8 +189,6 @@ def part2(data):
             print(i)
 
         i += 1
-
-    asyncio.create_task(saveGif(data.images, f'data/day14{data.stage}.png'))
 
     return ans
 
@@ -204,6 +213,9 @@ def run(data, stage):
     # Solve the second part
     print("Part 2: ", part2(parsed))
     tp2 = datetime.now()
+
+    asyncio.create_task(saveImage(parsed.images, f'data/day14{stage}.png', width=parsed.xloop, height=parsed.yloop))
+
 
     print("------------------------")
     parseTime = (tparsed - tstart).total_seconds() * 1000

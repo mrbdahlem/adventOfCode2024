@@ -26,7 +26,7 @@ def part2(data):
 
 ################################
 
-def run(data):
+def run(data, stage):
     """
     Run both parts of the day
     """
@@ -34,6 +34,8 @@ def run(data):
     parsed = parse(data)
     print("------------------------")
     tparsed = datetime.now()
+    
+    parsed.stage = stage
     
     # Solve the first part
     print("Part 1: ", part1(parsed))
