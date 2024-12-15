@@ -7,6 +7,7 @@ from collections import defaultdict
 import re
 from functools import cache
 from PIL import Image
+import asyncio
 
 def parse(data):
     parsed = SimpleNamespace()
@@ -31,16 +32,18 @@ def parse(data):
     parsed.w = len(parsed.map[0])
     parsed.h = len(parsed.map)
 
-    # Create a new image of the initial map
-    drawMap(parsed.start, parsed.boxes, parsed.walls, parsed.w, parsed.h, "day15initial")
-
     return parsed
 
 ################################
-
-def drawMap(robot, boxes, walls, w, h, name):
+async def saveGif(images, name):
     """
-    Draw the map with the robot, boxes, and walls and save it to a png file
+    Save a list of images as a GIF
+    """
+    images[0].save(name, save_all=True, append_images=images[1:], duration=100, loop=0)
+
+def drawMap(robot, boxes, walls, w, h):
+    """
+    Draw the map with the robot, boxes, and walls
     """
     # Create a new image with a white background
     img = Image.new('RGB', (w, h), color='white')
@@ -58,8 +61,7 @@ def drawMap(robot, boxes, walls, w, h, name):
                                   
     pixels[robot[1], robot[0]] = (255, 0, 0)
 
-    # Save the image
-    img.save(f'data/{name}.png')
+    return img
 
 dirs = {'^': (-1, 0), 'v': (1, 0), '<': (0, -1), '>': (0, 1)}
 
@@ -111,6 +113,9 @@ def part1(data):
     boxes = copy(data.boxes)
     walls = copy(data.walls)
 
+    # Create a new image of the initial map
+    data.animation.append(drawMap(robot, boxes, walls, data.w, data.h))
+
     # simulate each move in the robot's program
     for i,move in enumerate(data.moves):
         # print("Move", i+1, move)
@@ -125,10 +130,10 @@ def part1(data):
         if checkBoxes(new_robot, dr, dc, boxes, walls):
            robot = new_robot
 
-        # drawMap(data.map, robot, boxes, walls, f"day15p1_{i+1}")
+        data.animation.append(drawMap(robot, boxes, walls, data.w, data.h))
 
     # draw the final map
-    drawMap(robot, boxes, walls, data.w, data.h, "day15p1")
+    data.animation.append(drawMap(robot, boxes, walls, data.w, data.h))
 
     return calcScore(boxes)
 
@@ -214,7 +219,7 @@ def part2(data):
     boxes, walls = embiggen(data.boxes, data.walls)
 
     # draw the initial (double wide) map
-    drawMap(robot, boxes, walls, data.w * 2, data.h, "day15p2_initial")
+    data.animation.append(drawMap(robot, boxes, walls, data.w * 2, data.h))
 
     # simulate each move in the robot's program
     for i,move in enumerate(data.moves):
@@ -234,31 +239,43 @@ def part2(data):
         if checkBoxes2((newRobot[0], newRobot[1], newRobot[1]), dr, dc, newBoxes, walls):
            robot = newRobot
            boxes = newBoxes
-        # drawMap(data.map, robot, boxes, walls, f"day15p2_{i+1}")
+        data.animation.append(drawMap(robot, boxes, walls, data.w * 2, data.h))
 
     # draw the final map
-    drawMap(robot, boxes, walls, data.w * 2, data.h,  "day15p2")
+    data.animation.append(drawMap(robot, boxes, walls, data.w * 2, data.h))
 
     return calcScore(boxes)
 
 ################################
 
-def run(data):
+def run(data, stage):
     """
     Run both parts of the day
     """
     tstart = datetime.now()
     parsed = parse(data)
+    parsed.stage = stage
     print("------------------------")
     tparsed = datetime.now()
     
+    parsed.animation = []
+
     # Solve the first part
     print("Part 1: ", part1(parsed))
     tp1 = datetime.now()
 
+    print("Saving GIF", end='')
+    asyncio.create_task(saveGif(parsed.animation, f'data/day15{stage}-p1.gif'))
+    print(" - Done")
+    parsed.animation = []
+
     # Solve the second part
     print("Part 2: ", part2(parsed))
     tp2 = datetime.now()
+
+    print("Saving GIF", end='')
+    asyncio.create_task(saveGif(parsed.animation, f'data/day15{stage}-p2.gif'))
+    print(" - Done")
 
     print("------------------------")
     parseTime = (tparsed - tstart).total_seconds() * 1000
@@ -270,21 +287,24 @@ def run(data):
 
 ################################
 
-day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
-print ("Day", day)
+async def main():
+    day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
+    print ("Day", day)
 
-# load a sample data file for this day, if it exists
-if helper.exists(f"{day:02}-samp"):
-    samp = helper.load_data(f"{day:02}-samp")
-else:
-    samp = None
+    # load a sample data file for this day, if it exists
+    if helper.exists(f"{day:02}-samp"):
+        samp = helper.load_data(f"{day:02}-samp")
+    else:
+        samp = None
 
-# load the actual data for this day
-data = helper.load_data(day)
+    # load the actual data for this day
+    data = helper.load_data(day)
 
-if samp:
-    print("--------------- Sample Data ---------------")
-    run(samp)
+    if samp:
+        print("--------------- Sample Data ---------------")
+        run(samp, 'samp')
 
-print("-------------------------------------------")
-run(data)
+    print("-------------------------------------------")
+    run(data, 'full')
+
+asyncio.run(main())
