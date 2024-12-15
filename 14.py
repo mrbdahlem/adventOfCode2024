@@ -100,6 +100,13 @@ def part1(data):
 
 ################################
 
+def findCluster(robot, robots, size):
+    for d in range(1, size):
+        if not (robot.pos[0] + d, robot.pos[1]) in robots or not (robot.pos[0], robot.pos[1] + d) in robots:
+            return False
+    return True
+
+
 def part2(data):
     """
     Move the robots until they form a cluster, hopefully in the form of an easter egg, then determine the time it took
@@ -107,87 +114,54 @@ def part2(data):
     ans = set()
 
     # Reset the robots to their original positions
-    for r in data.robots:
-        r.reset()
-
+    for rob in data.robots:
+        rob.reset()
     
     # Move the robots repeatedly, looking for a loop in x and y positions to determine an
     # upper bound on the number of iterations
-    locs = []
+    stateOne = []
     xloop = None
     yloop = None
-    i = 0
-    while(not (xloop and yloop)):
-        loc = []
-
-        # Move the robots
-        for robot in data.robots:
-            robot.move(data.w, data.h)
-            loc.append(robot.pos)
-
-        # Check for a loop in the x positions of the robots    
-        if not xloop:
-            # compare the current location to all previous locations
-            for k,l in enumerate(locs):
-                loop = True
-                for j,r in enumerate(data.robots):
-                    if r.pos[0] != l[j][0]:
-                        loop = False
-                        break
-                if loop:
-                    print(f"Found a loop in x at {i} from {k} of {i-k} iterations")
-                    xloop = (k, i-k)
-                    break
-        # Check for a loop in the y positions of the robots
-        if not yloop:
-            # compare the current location to all previous locations
-            for k,l in enumerate(locs):
-                loop = True
-                for j,r in enumerate(data.robots):
-                    if r.pos[1] != l[j][1]:
-                        loop = False
-                        break
-                if loop:
-                    print(f"Found a loop in y at {i} from {k} of {i-k} iterations")
-                    yloop = (k, i-k)
-                    break
-
-        locs.append(loc)
-        i+=1
-        
-    # Reset the robots to their original positions
-    for r in data.robots:
-        r.reset()
-
-    size = 8
-    # Move the robots repeatedly, looking for small clusters
-    for i in range (1, xloop[1] * yloop[1]):
+    i = 1
+    while(not (xloop and yloop) or i < xloop * yloop):
         pos = set()
-        # Move the robots, record their new positions
-        for robot in data.robots:
+        cluster = False
+        # Move the robots repeatedly, looking for small clusters
+        for r,robot in enumerate(data.robots):
             robot.move(data.w, data.h)
-            pos.add((robot.pos[0], robot.pos[1]))
-        
-        # Check for a cluster of robots of size 'size'
-        for robot in data.robots:
-            count = 0
-            for d in range(1, size):
-                if (robot.pos[0] + d, robot.pos[1]) and (robot.pos[0], robot.pos[1] + d) in pos:
-                    count += 1
-                else:
-                    break
+            pos.add(robot.pos)
+            if i == 1:
+                stateOne.append(robot.pos)
+            else:
+                if not xloop:
+                    # compare the current state to the first state
+                    if robot.pos[0] == stateOne[r][0]:
+                        xloop = i-1
+                        print(f"Found a loop in x at {xloop} iterations")
+                
+                # Check for a loop in the y positions of the robots
+                if not yloop:
+                    # compare the current state to all the first state
+                    if robot.pos[1] == stateOne[r][1]:
+                        yloop = i-1
+                        print(f"Found a loop in y at {yloop} iterations")
 
-            # If the robot is close to a bunch of other robots, add it to the answer, and create a snapshot of the robots
-            if count == size - 1:
-                # Record the number of iterations
-                ans.add(i)
-                print(f"!!!!{i}!!!!")
-                robotMap(data.robots, data.w, data.h, i)                
-                break
+            if r % 2 == 0:
+                # Check for a cluster of robots of size 'size'
+                cluster = cluster or findCluster(robot, pos, 7)
+
+        # If the robot is close to a bunch of other robots, add it to the answer, and create a snapshot of the robots
+        if cluster:
+            # Record the number of iterations
+            ans.add(i)
+            print(f"!!!!{i}!!!!")
+            robotMap(data.robots, data.w, data.h, i)                
 
         # Print a status message every 200 iterations
-        if (i % 200 == 0):
+        if (i % 500 == 0):
             print(i)
+
+        i += 1
 
     return ans
 
