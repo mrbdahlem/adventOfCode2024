@@ -159,23 +159,26 @@ def part2(data):
     for r in data.robots:
         r.reset()
 
-    # Move the robots repeatedly, looking for a cluster
+    size = 8
+    # Move the robots repeatedly, looking for small clusters
     for i in range (1, xloop[1] * yloop[1]):
-
-        # Move the robots
+        pos = set()
+        # Move the robots, record their new positions
         for robot in data.robots:
             robot.move(data.w, data.h)
-
-        # Check for a cluster using a sampling of the robots
-        for n, robot in enumerate(data.robots[:len(data.robots)//10]):
-            # Check if the robot is close to a bunch of other robots
+            pos.add((robot.pos[0], robot.pos[1]))
+        
+        # Check for a cluster of robots of size 'size'
+        for robot in data.robots:
             count = 0
-            for robot2 in data.robots:
-                if math.dist(robot.pos, robot2.pos) < 5:
-                    count+=1
+            for d in range(1, size):
+                if (robot.pos[0] + d, robot.pos[1]) and (robot.pos[0], robot.pos[1] + d) in pos:
+                    count += 1
+                else:
+                    break
 
             # If the robot is close to a bunch of other robots, add it to the answer, and create a snapshot of the robots
-            if count > 30:
+            if count == size - 1:
                 # Record the number of iterations
                 ans.add(i)
                 print(f"!!!!{i}!!!!")
