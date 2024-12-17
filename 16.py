@@ -23,6 +23,16 @@ def parse(data):
     return parsed
 
 ################################
+class DjNode:
+    def __init__(self, pos, cost, prev, dir):
+        self.pos = pos
+        self.cost = cost
+        self.prev = prev
+        self.dir = dir
+
+    def __lt__(self, other):
+        return self.cost < other.cost
+
 opposite = {'e': 'w', 's': 'n', 'w': 'e', 'n': 's'}
 dirs = {'e': (0, 1), 's': (1, 0), 'w': (0, -1), 'n': (-1, 0)}
 turns = {'e': {'n': 1, 's': 1, 'w': 2, 'e': 0},
@@ -69,123 +79,83 @@ def neighbors(node, dir, maze):
             n.append(((nr, nc), d, turns[dir][d]))
     return n
 
-def bestPath(start, end, maze, limit=99999999999):
+def djk(start, end, maze):
     """
-    Find the best path from the start to the end in the maze, with a cost <= the limit
+    find the distances from the start point to 'all' other points in the maze
     """
-    cameFrom = dict()
-    pos = start
+        
+    visited = dict()
 
-    next=[pos] # priority queue of the nodes to explore, sorted by cost l>h
-    while (pos[0] != end and next):
+    # add the start node to the list of nodes to explore, with the ability to go in all directions
+    next = [DjNode(p[0], 0, None, p[1]) for p in start]
+
+    pos = next[0]
+    while (pos.pos != end and next):
         # get the next node and the direction to get there
         pos = next.pop(0)
-        dir = pos[3]
+        dir = pos.dir
 
         # if we have already found a better path to this node, skip it
-        if pos[0] in cameFrom:
-            if pos[1] >= cameFrom[pos[0]][1]:
-                continue
+        if pos.pos in visited and pos.cost > visited[pos.pos].cost:
+            continue
 
         # add the node to the list of nodes we have visited
-        cameFrom[pos[0]]=(pos[2], pos[1], dir)
+        visited[pos.pos] = pos
             
         # find the neighbors of the node
-        for n,d,t in neighbors(pos[0], dir, maze):
-            # if the cost of the path to the neighbor is less than the limit
-            if (pos[1] + 1 + (t * 1000) <= limit):
-                # add the neighbor to the list of nodes to explore
-                next.append((n, pos[1] + 1 + (t * 1000), pos[0], d))
+        for n,d,t in neighbors(pos.pos, dir, maze):
+            # add the neighbor to the list of nodes to explore
+            next.append(DjNode(n, pos.cost + 1 + (t * 1000), pos.pos, d))
 
         # sort the list of nodes to explore by cost
-        next = sorted(next, key=lambda x: x[1])
+        next = sorted(next, key=lambda x: x.cost)
 
     # return the list of nodes we have visited and the cost to get to each from the start
-    return cameFrom
+    return visited
     
 def part1(data):
     # find the cost of the best path from start to the end
-    start = (data.start, 0, None, 'e')
+    start = [(data.start, 'e')]
     
-    data.forwards = bestPath(start, data.end, data.maze)
-    data.best = data.forwards[data.end][1]
+    data.forwards = djk(start, data.end, data.maze)
+    data.best = data.forwards[data.end].cost
 
     return data.best
 
 ################################
-
-def djk(start, end, maze, limit=99999999999):
-    """
-    find the distances from the start point to 'all' other points in the maze
-    """
-
-    cameFrom = dict()
-    pos = start
-
-    # add the start node to the list of nodes to explore, with the ability to go in all directions
-    next = []
-    # for d in dirs:
-    next.append((pos, 0, None, 'w'))
-
-    while (pos[0] != end and next):
-        # get the next node and the direction to get there
-        pos = next.pop(0)
-        dir = pos[3]
-
-        # if we have already found a better path to this node, skip it
-        if pos[0] in cameFrom:
-            if pos[1] >= cameFrom[pos[0]][1]:
-                continue
-
-        # add the node to the list of nodes we have visited
-        cameFrom[pos[0]]=(pos[2], pos[1], dir)
-            
-        # find the neighbors of the node
-        for n,d,t in neighbors(pos[0], dir, maze):
-            # if the cost of the path to the neighbor is less than the limit
-            if (pos[1] + 1 + (t * 1000) <= limit):
-                # add the neighbor to the list of nodes to explore
-                next.append((n, pos[1] + 1 + (t * 1000), pos[0], d))
-
-        # sort the list of nodes to explore by cost
-        next = sorted(next, key=lambda x: x[1])
-
-    # return the list of nodes we have visited and the cost to get to each from the start
-    return cameFrom
-
 
 def part2(data):
     """
     find all of nodes on the 'best' paths from the start to the goal
     """
 
-    # find the distance from the goal to 'all' of the nodes that
-    backwards  = djk(data.end, data.start, data.maze)
+    end = [(data.end, d) for d in dirs]
 
     forwards = data.forwards
     best = data.best
 
+    # find the distance from the goal to 'all' of the nodes that
+    backwards = djk(end, data.start, data.maze)
+
     # find the nodes that are on the best paths
     pathNodes = set()
 
-    # for each node found in the search from the end to the start
-    for n in backwards:
-        # that also appears in the search from the start to the end
-        if n in forwards:
-            # if the cost of the path from the start to the node plus the cost of the path from
-            # the node to the end is the same as the best path, it's on a best path
-            if backwards[n][1] + forwards[n][1] == best:
-                pathNodes.add(n)
+    # for each node found in the search from the end to the start and start to end
+    for n in set(forwards.keys()).intersection(backwards.keys()):
+        # if the cost of the path from the start to the node plus the cost of the path from
+        # the node to the end is the same as the best path, it's on a best path
+        if backwards[n].cost + forwards[n].cost == best:
+            pathNodes.add(n)
 
-            # if the node is on a turn, it's might also be on a best path
-            elif (backwards[n][1] + forwards[n][1] + 
-                    (turns[backwards[n][2]][forwards[n][2]] * 1000) == best):
-                pathNodes.add(n)
+        # if the node is on a turn, it's might also be on a best path
+        elif (backwards[n].cost + forwards[n].cost + 
+                (turns[backwards[n].dir][forwards[n].dir] * 1000) == best):
+            pathNodes.add(n)
     
     drawMap(data.maze, pathNodes).save(f"output/day16{data.stage}-p2.png")
 
-
     return len(pathNodes)
+
 ################################
 
 def run(data, stage):
