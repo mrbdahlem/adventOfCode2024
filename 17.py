@@ -212,11 +212,11 @@ async def main():
     print(sep)
 
     # load a sample data file for this day, if it exists
-    if helper.exists(f"{day:02}-samp"):
-        print(f"{' Sample Data ':-^{len(sep)}}")
-        data = helper.load_data(f"{day:02}-samp")
-        # if data:
-        #     run(data, 'samp')
+    # if helper.exists(f"{day:02}-samp"):
+    #     print(f"{' Sample Data ':-^{len(sep)}}")
+    #     data = helper.load_data(f"{day:02}-samp")
+    #     if data:
+    #         run(data, 'samp')
     
     # load the actual data for this day
     print(f"{' Actual Data ':-^{len(sep)}}")
