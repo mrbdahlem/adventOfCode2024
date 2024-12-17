@@ -3,6 +3,7 @@ import urllib.error
 import urllib.parse
 import urllib.request
 import time
+from PIL import Image, ImageDraw
 
 year = 2024
 
@@ -69,6 +70,32 @@ def timeit(func):
         print(f"{func.__name__} time: {(tend - tstart) * 1000:10,.1f} ms", end='\t')
         return result
     return wrapper
+
+def drawMap(maze, scale=10, nodes=[]):
+    """
+    Draw the map with the robot, boxes, and walls
+    """
+              
+    # Create a new image with a white background
+    img = Image.new('RGB', (len(maze[0]) * scale, len(maze)* scale), color='white')
+
+    draw = ImageDraw.Draw(img)
+
+    def point(p, color=(0, 0, 0)):
+        c = p[0]
+        r = p[1]
+        draw.rectangle((c * scale, r * scale, c * scale + scale, r * scale + scale), fill=color)
+         
+    for node in nodes:
+        point(*node)
+
+    for r in range(len(maze)):
+        for c in range(len(maze[r])):
+            if maze[r][c] == '#':
+                point((r, c), (0, 0, 0))
+
+    return img, draw
+
 
 
 if __name__ == "__main__":

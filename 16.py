@@ -6,7 +6,7 @@ from copy import copy, deepcopy
 from collections import defaultdict, deque
 import re
 from functools import cache
-from PIL import Image, ImageDraw
+from PIL import ImageDraw
 import asyncio
 import heapq
 
@@ -46,26 +46,20 @@ def drawMap(maze, nodes=[]):
     """
     Draw the map with the robot, boxes, and walls
     """
+    scale = 10
               
     # Create a new image with a white background
-    img = Image.new('RGB', (len(maze[0]) * 10, len(maze)* 10), color='white')
+    img, draw = helper.drawMap(maze, scale, [(n, (128, 0, 255)) for n in nodes])
 
-    draw = ImageDraw.Draw(img)
-
-    def rect(c, r, color):
-        draw.rectangle((c * 10, r * 10, c * 10 + 10, r * 10 + 10), fill=color)
-         
-    for node in nodes:
-        rect(node[1], node[0], (0, 255, 255))
-
+    def point(c, r, color):
+        draw.rectangle((c * scale, r * scale, c * scale + scale, r * scale + scale), fill=color)
+    
     for r in range(len(maze)):
         for c in range(len(maze[r])):
-            if maze[r][c] == '#':
-                rect(c, r, (0, 0, 0))
-            elif maze[r][c] == 'S':
-                rect(c, r, (0, 255, 0))
+            if maze[r][c] == 'S':
+                point(c, r, (0, 255, 0))
             elif maze[r][c] == 'E':
-                rect(c, r, (255 , 0, 0))
+                point(c, r, (255 , 0, 0))
     return img
 
 def neighbors(node, dir, maze):
@@ -164,23 +158,24 @@ def run(data, stage):
     Run both parts of the day
     """
     parsed = parse(data)
-    print("------------------------")
-    
     parsed.stage = stage
+    print("-" * 24)
     
     # Solve the first part
-    print("Part 1: {\033[0;41m\033[1;97m", part1(parsed), "\033[0m}")
+    print("Part 1: {\033[0;41m\033[1;97m " + str(part1(parsed)) + " \033[0m}")
 
     # Solve the second part
-    print("Part 2: {\033[0;42m\033[1;97m", part2(parsed), "\033[0m}")
-
-    print("-------------------------------------------")
-
+    print("Part 2: {\033[0;42m\033[1;97m " + str(part2(parsed)) + " \033[0m}")
+    
 ################################
 
 async def main():
+    sep = "-" * 56
+    print(sep)
+
     day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
-    print ("Day", day)
+    print (f"{f' Day {day} ':-^{len(sep)}}")
+    print(sep)
 
     # load a sample data file for this day, if it exists
     if helper.exists(f"{day:02}-samp"):
@@ -192,10 +187,11 @@ async def main():
     data = helper.load_data(day)
 
     if samp:
-        print("--------------- Sample Data ---------------")
+        print(f"{' Sample Data ':-^{len(sep)}}")
         run(samp, 'samp')
 
-    print("-------------------------------------------")
+    print(f"{' Actual Data ':-^{len(sep)}}")
     run(data, 'full')
+    print(sep)    
 
 asyncio.run(main())
