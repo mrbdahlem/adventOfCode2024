@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw
 import asyncio
 import heapq
 
+@helper.timeit
 def parse(data):
     parsed = SimpleNamespace()
     parsed.data = data
@@ -17,11 +18,13 @@ def parse(data):
 
 ################################
 
+@helper.timeit
 def part1(data):
     return 0
 
 ################################
 
+@helper.timeit
 def part2(data):
     return 0
 
@@ -56,7 +59,8 @@ async def main():
     if helper.exists(f"{day:02}-samp"):
         print(f"{' Sample Data ':-^{len(sep)}}")
         data = helper.load_data(f"{day:02}-samp")
-        run(data, 'samp')
+        if data:
+            run(data, 'samp')
     
     # load the actual data for this day
     print(f"{' Actual Data ':-^{len(sep)}}")
