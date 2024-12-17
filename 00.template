@@ -44,12 +44,12 @@ def run(data, stage):
 ################################
 
 async def main():
-    sep = "-" * 56
+    sep = "~" * 56
     print(sep)
 
     # Get the day number from this file's name
     day = int(__file__.split(os.sep)[-1].split(".")[0])
-    print (f"{f' Day {day} ':-^{len(sep)}}")
+    print (f"{f' Day {day} ':*^{len(sep)}}")
     print(sep)
 
     # load a sample data file for this day, if it exists

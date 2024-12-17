@@ -170,7 +170,7 @@ def run(data, stage):
 ################################
 
 async def main():
-    sep = "-" * 56
+    sep = "#" * 56
     print(sep)
 
     # Get the day number from this file's name
