@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw
 import asyncio
 import heapq
 
+@helper.timeit
 def parse(data):
     parsed = SimpleNamespace()
     parsed.maze = [[c for c in line] for line in data.strip().split("\n")]
@@ -110,7 +111,8 @@ def djk(startNodes, end, maze):
 
     # return the list of nodes we have visited and the cost to get to each from the start
     return visited
-    
+
+@helper.timeit
 def part1(data):
     # find the cost of the best path from start to the end
     start = [DjNode(data.start, 0, None, 'e')]
@@ -122,6 +124,7 @@ def part1(data):
 
 ################################
 
+@helper.timeit
 def part2(data):
     """
     find all of nodes on the 'best' paths from the start to the goal
@@ -160,28 +163,18 @@ def run(data, stage):
     """
     Run both parts of the day
     """
-    tstart = datetime.now()
     parsed = parse(data)
     print("------------------------")
-    tparsed = datetime.now()
     
     parsed.stage = stage
     
     # Solve the first part
-    print("Part 1: ", part1(parsed))
-    tp1 = datetime.now()
+    print("Part 1: {\033[0;41m\033[1;97m", part1(parsed), "\033[0m}")
 
     # Solve the second part
-    print("Part 2: ", part2(parsed))
-    tp2 = datetime.now()
+    print("Part 2: {\033[0;42m\033[1;97m", part2(parsed), "\033[0m}")
 
-    print("------------------------")
-    parseTime = (tparsed - tstart).total_seconds() * 1000
-    part1Time = (tp1 - tparsed).total_seconds() * 1000
-    part2Time = (tp2 - tp1).total_seconds() * 1000
-    print(f"Parse Time: {parseTime:,.03f} ms")
-    print(f"Part 1 Time: {part1Time:,.03f} ms")
-    print(f"Part 2 Time: {part2Time:,.03f} ms")
+    print("-------------------------------------------")
 
 ################################
 

@@ -2,6 +2,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
+import time
 
 year = 2024
 
@@ -59,6 +60,16 @@ def request(day):
         print ("Error fetching data:", e)
         return None
     
+def timeit(func):
+    """ Decorator to time a function """
+    def wrapper(*args, **kwargs):
+        tstart = time.perf_counter()
+        result = func(*args, **kwargs)
+        tend = time.perf_counter()
+        print(f"{func.__name__} time: {(tend - tstart) * 1000:10,.1f} ms", end='\t')
+        return result
+    return wrapper
+
+
 if __name__ == "__main__":
     print ("Running helper. You didn't want to do that.")
-    
