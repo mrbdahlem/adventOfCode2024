@@ -6,7 +6,7 @@ from copy import copy, deepcopy
 from collections import defaultdict
 import re
 from functools import cache
-from PIL import Image
+from PIL import Image, ImageDraw
 import asyncio
 
 def parse(data):
