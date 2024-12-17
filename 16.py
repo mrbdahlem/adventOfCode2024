@@ -1,6 +1,6 @@
 from types import SimpleNamespace
 import helper
-from datetime import datetime
+import os
 
 from copy import copy, deepcopy
 from collections import defaultdict, deque
@@ -173,25 +173,22 @@ async def main():
     sep = "-" * 56
     print(sep)
 
-    day = int(__file__.split("\\")[-1].split("/")[-1].split(".")[0])
+    # Get the day number from this file's name
+    day = int(__file__.split(os.sep)[-1].split(".")[0])
     print (f"{f' Day {day} ':-^{len(sep)}}")
     print(sep)
 
     # load a sample data file for this day, if it exists
     if helper.exists(f"{day:02}-samp"):
-        samp = helper.load_data(f"{day:02}-samp")
-    else:
-        samp = None
-
-    # load the actual data for this day
-    data = helper.load_data(day)
-
-    if samp:
         print(f"{' Sample Data ':-^{len(sep)}}")
-        run(samp, 'samp')
-
+        data = helper.load_data(f"{day:02}-samp")
+        run(data, 'samp')
+    
+    # load the actual data for this day
     print(f"{' Actual Data ':-^{len(sep)}}")
+
+    data = helper.load_data(day)
     run(data, 'full')
-    print(sep)    
+    print(sep)
 
 asyncio.run(main())
