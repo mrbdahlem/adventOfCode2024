@@ -8,6 +8,7 @@ import re
 from functools import cache
 from PIL import Image, ImageDraw
 import asyncio
+import heapq
 
 def parse(data):
     parsed = SimpleNamespace()
@@ -79,7 +80,7 @@ def neighbors(node, dir, maze):
             n.append(((nr, nc), d, turns[dir][d]))
     return n
 
-def djk(start, end, maze):
+def djk(startNodes, end, maze):
     """
     find the distances from the start point to 'all' other points in the maze
     """
@@ -87,35 +88,32 @@ def djk(start, end, maze):
     visited = dict()
 
     # add the start node to the list of nodes to explore, with the ability to go in all directions
-    next = [DjNode(p[0], 0, None, p[1]) for p in start]
+    next = copy(startNodes)
 
-    pos = next[0]
-    while (pos.pos != end and next):
+    node = next[0]
+    while (node.pos != end and next):
         # get the next node and the direction to get there
-        pos = next.pop(0)
-        dir = pos.dir
+        node = heapq.heappop(next)
+        dir = node.dir
 
         # if we have already found a better path to this node, skip it
-        if pos.pos in visited and pos.cost > visited[pos.pos].cost:
+        if node.pos in visited and node.cost > visited[node.pos].cost:
             continue
 
         # add the node to the list of nodes we have visited
-        visited[pos.pos] = pos
+        visited[node.pos] = node
             
         # find the neighbors of the node
-        for n,d,t in neighbors(pos.pos, dir, maze):
-            # add the neighbor to the list of nodes to explore
-            next.append(DjNode(n, pos.cost + 1 + (t * 1000), pos.pos, d))
-
-        # sort the list of nodes to explore by cost
-        next = sorted(next, key=lambda x: x.cost)
+        for n,d,t in neighbors(node.pos, dir, maze):
+            # add the neighbor to the heap of nodes to explore
+            heapq.heappush(next, DjNode(n, node.cost + 1 + (t * 1000), node.pos, d))
 
     # return the list of nodes we have visited and the cost to get to each from the start
     return visited
     
 def part1(data):
     # find the cost of the best path from start to the end
-    start = [(data.start, 'e')]
+    start = [DjNode(data.start, 0, None, 'e')]
     
     data.forwards = djk(start, data.end, data.maze)
     data.best = data.forwards[data.end].cost
@@ -129,13 +127,13 @@ def part2(data):
     find all of nodes on the 'best' paths from the start to the goal
     """
 
-    end = [(data.end, d) for d in dirs]
+    endNodes = [DjNode(data.end, 0, None, d) for d in dirs]
 
     forwards = data.forwards
     best = data.best
 
     # find the distance from the goal to 'all' of the nodes that
-    backwards = djk(end, data.start, data.maze)
+    backwards = djk(endNodes, data.start, data.maze)
 
     # find the nodes that are on the best paths
     pathNodes = set()
