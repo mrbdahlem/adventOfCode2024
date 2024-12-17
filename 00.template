@@ -8,6 +8,7 @@ import re
 from functools import cache
 from PIL import Image, ImageDraw
 import asyncio
+import heapq
 
 def parse(data):
     parsed = SimpleNamespace()
