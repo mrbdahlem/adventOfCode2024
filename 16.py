@@ -106,53 +106,86 @@ def bestPath(start, end, maze, limit=99999999999):
 def part1(data):
     # find the cost of the best path from start to the end
     start = (data.start, 0, None, 'e')
-    cameFrom = bestPath(start, data.end, data.maze)
-    data.pruned = cameFrom
-    data.best = cameFrom[data.end][1]
+    
+    data.forwards = bestPath(start, data.end, data.maze)
+    data.best = data.forwards[data.end][1]
+
     return data.best
 
 ################################
-def findPaths(start, end, nodes, best, maze):
+
+def djk(start, end, maze, limit=99999999999):
     """
-    find all of the nodes that are on the paths from the start to the goal
+    find the distances from the start point to 'all' other points in the maze
     """
-    pathNodes = set()
-    pathNodes.add(start)
-    pathNodes.add(end)
 
-    l = len(nodes)
-    # for each node in the list
-    for i,n in enumerate(nodes):
-        if n == start:
-            continue
-        if n == end:
-            continue
+    cameFrom = dict()
+    pos = start
 
-        # if the node is further than the best path, skip it
-        c = nodes[n][1]
-        if c >= best:
-            continue
-        
-        # find the best path from the node to the goal
-        p = bestPath((n, c, nodes[n][0], nodes[n][2]), end, maze, best)
+    # add the start node to the list of nodes to explore, with the ability to go in all directions
+    next = []
+    # for d in dirs:
+    next.append((pos, 0, None, 'w'))
 
-        # cost to the node and from the node to the end is on the best path
-        if end in p and p[end][1] <= best:
-            # add the node to the list of nodes on the path
-            pathNodes.add(n)
+    while (pos[0] != end and next):
+        # get the next node and the direction to get there
+        pos = next.pop(0)
+        dir = pos[3]
 
-        if (i % 100 == 0):
-            print(f"{i}/{l}")
+        # if we have already found a better path to this node, skip it
+        if pos[0] in cameFrom:
+            if pos[1] >= cameFrom[pos[0]][1]:
+                continue
 
-    return pathNodes
+        # add the node to the list of nodes we have visited
+        cameFrom[pos[0]]=(pos[2], pos[1], dir)
+            
+        # find the neighbors of the node
+        for n,d,t in neighbors(pos[0], dir, maze):
+            # if the cost of the path to the neighbor is less than the limit
+            if (pos[1] + 1 + (t * 1000) <= limit):
+                # add the neighbor to the list of nodes to explore
+                next.append((n, pos[1] + 1 + (t * 1000), pos[0], d))
+
+        # sort the list of nodes to explore by cost
+        next = sorted(next, key=lambda x: x[1])
+
+    # return the list of nodes we have visited and the cost to get to each from the start
+    return cameFrom
+
 
 def part2(data):
-    # find all of nodes on the paths from the start to the goal
-    nodes = findPaths(data.start, data.end, data.pruned, data.best, data.maze)
-    drawMap(data.maze, nodes).show()
-    return len(nodes)
-    
+    """
+    find all of nodes on the 'best' paths from the start to the goal
+    """
 
+    # find the distance from the goal to 'all' of the nodes that
+    backwards  = djk(data.end, data.start, data.maze)
+
+    forwards = data.forwards
+    best = data.best
+
+    # find the nodes that are on the best paths
+    pathNodes = set()
+
+    # for each node found in the search from the end to the start
+    for n in backwards:
+        # that also appears in the search from the start to the end
+        if n in forwards:
+            # if the cost of the path from the start to the node plus the cost of the path from
+            # the node to the end is the same as the best path, it's on a best path
+            if backwards[n][1] + forwards[n][1] == best:
+                pathNodes.add(n)
+
+            # if the node is on a turn, it's might also be on a best path
+            elif (backwards[n][1] + forwards[n][1] + 
+                    (turns[backwards[n][2]][forwards[n][2]] * 1000) == best):
+                pathNodes.add(n)
+    
+    drawMap(data.maze, pathNodes).save(f"output/day16{data.stage}-p2.png")
+
+
+    return len(pathNodes)
 ################################
 
 def run(data, stage):
