@@ -139,7 +139,7 @@ def part1(data):
 
 ################################
 
-def findMatch(soFar, prg, comp):
+def findMatch(soFar, prg, comp, level=1):
     """
     Find the A register value that causes the device to output a match for the given program
     """
@@ -166,9 +166,11 @@ def findMatch(soFar, prg, comp):
         
         # If the output matches the end of the program, try to find the next 3 bits of the input
         if (prg.endswith(comp.getOut())):
-            a = findMatch(nextA, prg, comp)
+            a = findMatch(nextA, prg, comp, level+1)
             if a is not None:
                 return a
+            else:
+                print(f"No match, backtracking at {level}")
             
     return None
 
