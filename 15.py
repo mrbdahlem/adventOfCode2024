@@ -37,9 +37,12 @@ def parse(data):
 ################################
 async def saveGif(images, name):
     """
-    Save a list of images as a GIF
+    Save a list of images an animated gif/png
     """
-    images[0].save(name, save_all=True, append_images=images[1:], duration=100, loop=0)
+
+    print ("Saving", name)
+    images[0].save(f'output/{name}', save_all=True, append_images=images[1:], duration=100, loop=0)
+
 
 def drawMap(robot, boxes, walls, w, h):
     """
@@ -264,18 +267,14 @@ def run(data, stage):
     print("Part 1: ", part1(parsed))
     tp1 = datetime.now()
 
-    print("Saving GIF", end='')
-    asyncio.create_task(saveGif(parsed.animation, f'data/day15{stage}-p1.gif'))
-    print(" - Done")
+    asyncio.create_task(saveGif(parsed.animation, f'day15{stage}-p1.gif'))
     parsed.animation = []
 
     # Solve the second part
     print("Part 2: ", part2(parsed))
     tp2 = datetime.now()
 
-    print("Saving GIF", end='')
-    asyncio.create_task(saveGif(parsed.animation, f'data/day15{stage}-p2.gif'))
-    print(" - Done")
+    asyncio.create_task(saveGif(parsed.animation, f'day15{stage}-p2.gif'))
 
     print("------------------------")
     parseTime = (tparsed - tstart).total_seconds() * 1000
@@ -306,5 +305,6 @@ async def main():
 
     print("-------------------------------------------")
     run(data, 'full')
+
 
 asyncio.run(main())

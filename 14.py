@@ -1,6 +1,7 @@
 from types import SimpleNamespace
 import helper
 from datetime import datetime
+import os
 
 from copy import copy, deepcopy
 from collections import defaultdict
@@ -55,6 +56,9 @@ async def saveImage(images, name, width, height):
     """
     Save a list of images as a contact sheet
     """
+
+    print ("Saving", name)
+
     imgwidth, imgheight = images[0].size
 
     img = Image.new('RGB', (width * (imgwidth + 1), height * (imgheight + 1)), color='white')
@@ -62,7 +66,7 @@ async def saveImage(images, name, width, height):
     for x in range(width):
         for y in range(height):
             img.paste(images[x + y * width], (x * (imgwidth + 1), y * (imgheight + 1)))
-    img.save(name)
+    img.save(f'output/{name}')
 
 def robotMap(robots, w, h, name='', num=None):
     """
@@ -83,7 +87,7 @@ def robotMap(robots, w, h, name='', num=None):
         draw.text((0, 0), f"{num}", fill=(255, 255, 255), font=font)
 
     if name:
-        img.save(name)
+        img.save(f'output/{name}')
 
     return img
 
@@ -180,7 +184,7 @@ def part2(data):
             # Record the number of iterations
             ans.add(i)
             print(f"!!!!{i}!!!!")
-            robotMap(data.robots, data.w, data.h, name=f'data/day14{data.stage}-{i}.png')
+            robotMap(data.robots, data.w, data.h, name=f'day14{data.stage}-{i}.png')
 
         data.images.append(robotMap(data.robots, data.w, data.h, num=i))
 
@@ -214,7 +218,7 @@ def run(data, stage):
     print("Part 2: ", part2(parsed))
     tp2 = datetime.now()
 
-    asyncio.create_task(saveImage(parsed.images, f'data/day14{stage}.png', width=parsed.xloop, height=parsed.yloop))
+    asyncio.create_task(saveImage(parsed.images, f'day14{stage}.png', width=parsed.xloop, height=parsed.yloop))
 
 
     print("------------------------")
