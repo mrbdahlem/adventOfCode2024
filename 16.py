@@ -186,7 +186,6 @@ async def main():
     
     # load the actual data for this day
     print(f"{' Actual Data ':-^{len(sep)}}")
-
     data = helper.load_data(day)
     run(data, 'full')
     print(sep)

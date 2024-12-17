@@ -64,5 +64,5 @@ async def main():
     data = helper.load_data(day)
     run(data, 'full')
     print(sep)
-    
+
 asyncio.run(main())
