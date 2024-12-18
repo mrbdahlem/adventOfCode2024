@@ -57,6 +57,9 @@ def drawMap(path, obs, w, h, scale=10, visited=[]):
 
 
 class Node:
+    """
+    A node in the A* search
+    """
     def __init__(self, pos, cost, prev, prevsteps):
         self.pos = pos
         self.cost = cost
@@ -67,9 +70,15 @@ class Node:
         return self.cost < other.cost
 
 def dist(a, b):
+    """
+    Find the Manhattan distance between two points
+    """
     return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def neighbors(node, maxX, maxY):
+    """
+    Find the neighbors of a node that are within the bounds of the map
+    """
     n = []
     for d in [(0, -1), (-1, 0), (0, 1), (1, 0)]:
         x = node[0] + d[0]
@@ -77,10 +86,13 @@ def neighbors(node, maxX, maxY):
         if x >= 0 and x <= maxX and y >= 0 and y <= maxY:
             n.append((x, y))
     return n
-
+    
 def astar(start, end, maxX, maxY, obstacles):
-    visited = dict()
+    """
+    Find the shortest path from the start to the end avoiding the obstacles
+    """
     start = Node(start, dist(start, end), None, 0)
+    visited = set()
 
     # add the start node to the list of nodes to explore
     next = [start]
@@ -96,7 +108,7 @@ def astar(start, end, maxX, maxY, obstacles):
             continue
 
         # add the node to the list of nodes we have visited
-        visited[node.pos] = node.cost
+        visited.add(node.pos)
 
         soFar = node.prevsteps + 1
 
