@@ -135,9 +135,9 @@ def part1(data):
 
     # only use the first 12 bytes for the sample data, the first 1024 bytes for the full data
     if (data.stage == 'samp'):
-        bytes = data.bytes[:12]
+        bytes = set(data.bytes[:12])
     else:
-        bytes = data.bytes[:1024]
+        bytes = set(data.bytes[:1024])
 
     # find the shortest path from the start to the end
     best, visited = astar(start, end, maxX, maxY, bytes)
@@ -173,11 +173,14 @@ def part2(data):
     else:
         sb = 1024
 
+    obstacles = set(data.bytes[:sb])
+
     # add one obstacle at a time and see if there is still a path to the end
     for i,byte in enumerate(data.bytes[sb:]):
+        obstacles.add(byte)
         if byte in path: # if the path gets blocked
             # find the new shortest path from the start to the end
-            newPath, _ = astar(start, end, maxX, maxY, data.bytes[0:i+sb+1])
+            newPath, _ = astar(start, end, maxX, maxY, obstacles)
             
             # drawMap(newPath, data.bytes[0:i+sb+1], maxX, maxY)
             if newPath == None: # if there is no path remaining
