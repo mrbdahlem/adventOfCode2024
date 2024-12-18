@@ -185,12 +185,14 @@ def part2(data):
     else:
         sb = 1024
 
+    # add all of the obstacles up to the starting point
     obstacles = set(data.bytes[:sb])
 
-    # add one obstacle at a time and see if there is still a path to the end
-    for i,byte in enumerate(data.bytes[sb:]):
+    for byte in data.bytes[sb:]:
+        # add one obstacle at a time and see if there is still a path to the end
         obstacles.add(byte)
-        if byte in path: # if the path gets blocked
+
+        if byte in path: # if the path gets blocked by the new byte
             # find the new shortest path from the start to the end
             newPath, _ = astar(start, end, maxX, maxY, obstacles)
             
