@@ -57,10 +57,11 @@ def drawMap(path, obs, w, h, scale=10, visited=[]):
 
 
 class Node:
-    def __init__(self, pos, cost, prev):
+    def __init__(self, pos, cost, prev, prevsteps):
         self.pos = pos
         self.cost = cost
         self.prev = prev
+        self.prevsteps = prevsteps
 
     def __lt__(self, other):
         return self.cost < other.cost
@@ -79,7 +80,7 @@ def neighbors(node, maxX, maxY):
 
 def astar(start, end, maxX, maxY, obstacles):
     visited = dict()
-    start = Node(start, dist(start, end), None)
+    start = Node(start, dist(start, end), None, 0)
 
     # add the start node to the list of nodes to explore
     next = [start]
@@ -97,13 +98,16 @@ def astar(start, end, maxX, maxY, obstacles):
         # add the node to the list of nodes we have visited
         visited[node.pos] = node.cost
 
+        soFar = node.prevsteps + 1
+
         # find the neighbors of the node
         for n in neighbors(node.pos, maxX, maxY):
             # if the neighbor is an obstacle, skip it
             if n in obstacles:
                 continue
             # add the neighbor to the heap of nodes to explore
-            heapq.heappush(next, Node(n, node.cost + dist(n, end), node))
+            
+            heapq.heappush(next, Node(n, soFar + dist(n, end), node, soFar))
 
     last = node
 
