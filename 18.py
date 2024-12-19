@@ -3,7 +3,7 @@ import helper
 import os
 
 from copy import copy, deepcopy
-from collections import defaultdict
+from collections import defaultdict, deque
 import re
 from functools import cache
 from PIL import Image, ImageDraw
@@ -58,22 +58,15 @@ def drawMap(path, obs, w, h, scale=10, visited=[]):
 
 class Node:
     """
-    A node in the A* search
+    A node in the bfsearch
     """
-    def __init__(self, pos, cost, prev, prevsteps):
+    def __init__(self, pos, prev, prevsteps):
         self.pos = pos
-        self.cost = cost
         self.prev = prev
         self.prevsteps = prevsteps
 
     def __lt__(self, other):
         return self.cost < other.cost
-
-def dist(a, b):
-    """
-    Find the Manhattan distance between two points
-    """
-    return abs(a[0] - b[0]) + abs(a[1] - b[1])
 
 def neighbors(node, maxX, maxY):
     """
@@ -87,22 +80,21 @@ def neighbors(node, maxX, maxY):
             n.append((x, y))
     return n
     
-def astar(start, end, maxX, maxY, obstacles):
+def bfs(start, end, maxX, maxY, obstacles):
     """
     Find the shortest path from the start to the end avoiding the obstacles
     """
-    start = Node(start, dist(start, end), None, 0)
+    start = Node(start, None, 0)
     visited = set()
 
-    # add the start node to the list of nodes to explore
-    next = [start]
-    heapq.heapify(next)
-
+    # add the start node to the queue of nodes to explore
+    next = deque([start])
+    
     node = start
     while (node.pos != end and next):
         # get the next node that is closest to the end
-        node = heapq.heappop(next)
-        
+        node = next.popleft()
+
         # if we've already visited this node, skip it
         if node.pos in visited:
             continue
@@ -118,8 +110,7 @@ def astar(start, end, maxX, maxY, obstacles):
             if n in obstacles:
                 continue
             # add the neighbor to the heap of nodes to explore
-            
-            heapq.heappush(next, Node(n, soFar + dist(n, end), node, soFar))
+            next.append(Node(n, node, soFar))
 
     last = node
 
@@ -152,7 +143,7 @@ def part1(data):
         bytes = set(data.bytes[:1024])
 
     # find the shortest path from the start to the end
-    best, visited = astar(start, end, maxX, maxY, bytes)
+    best, visited = bfs(start, end, maxX, maxY, bytes)
 
     # remember the path for part 2
     data.path = best
@@ -194,7 +185,7 @@ def part2(data):
 
         if byte in path: # if the path gets blocked by the new byte
             # find the new shortest path from the start to the end
-            newPath, _ = astar(start, end, maxX, maxY, obstacles)
+            newPath, _ = bfs(start, end, maxX, maxY, obstacles)
             
             # drawMap(newPath, data.bytes[0:i+sb+1], maxX, maxY)
             if newPath == None: # if there is no path remaining
