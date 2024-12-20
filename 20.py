@@ -189,13 +189,13 @@ async def main():
     print(sep)
 
 part1Wrong = {
-    "samp": [],
-    "full": []
+    "samp": [(5, 'correct')],
+    "full": [(285, 'correct')]
 }
 
 part2Wrong = {
-    "samp": [],
-    "full": [(945683, 'low'), (1071736, 'high')]
+    "samp": [(1438, 'correct')],
+    "full": [(945683, 'low'), (1026446, 'correct'), (1071736, 'high')]
 }
 
 asyncio.run(main())
