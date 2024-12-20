@@ -71,7 +71,7 @@ def timeit(func):
         return result
     return wrapper
 
-def drawMap(maze, scale=10, nodes=[]):
+def drawMap(maze, nodeLists=[], scale=10):
     """
     Draw the map with the robot, boxes, and walls
     """
@@ -81,21 +81,26 @@ def drawMap(maze, scale=10, nodes=[]):
 
     draw = ImageDraw.Draw(img)
 
-    def point(p, color=(0, 0, 0)):
-        c = p[0]
-        r = p[1]
+    def point(p, color=(255, 0, 0)):
+        c = p[1]
+        r = p[0]
         draw.rectangle((c * scale, r * scale, c * scale + scale, r * scale + scale), fill=color)
-         
-    for node in nodes:
-        point(*node)
-
+    
     for r in range(len(maze)):
         for c in range(len(maze[r])):
             if maze[r][c] == '#':
                 point((r, c), (0, 0, 0))
 
-    return img, draw
+    if nodeLists:
+        for nodes in nodeLists:
+            if len(nodes) == 2:
+                color = nodes[1]
+            else:
+                color = (255, 0, 0)
+            for node in nodes[0]:
+                point(node, color)
 
+    return img
 
 
 if __name__ == "__main__":

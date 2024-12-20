@@ -3,7 +3,7 @@ import helper
 import os
 
 from copy import copy, deepcopy
-from collections import defaultdict
+from collections import defaultdict, deque
 import re
 from functools import cache
 from PIL import Image, ImageDraw
@@ -39,10 +39,11 @@ def run(data, stage):
     print("-" * 24)
     
     # Solve the first part
-    print("Part 1: {\033[0;41m\033[1;97m " + str(part1(parsed)) + " \033[0m}")
+    print("Part 1: {\033[0;41m\033[1;97m " + str(part1(parsed)) + " \033[0m}", part1Wrong[stage])
+
 
     # Solve the second part
-    print("Part 2: {\033[0;42m\033[1;97m " + str(part2(parsed)) + " \033[0m}")
+    print("Part 2: {\033[0;42m\033[1;97m " + str(part2(parsed)) + " \033[0m}", part2Wrong[stage])
 
 ################################
 
@@ -68,5 +69,16 @@ async def main():
     data = helper.load_data(day)
     run(data, 'full')
     print(sep)
+
+part1Wrong = {
+    "samp": [],
+    "full": []
+}
+
+part2Wrong = {
+    "samp": [],
+    "full": [(945683, 'low'), (1071736, 'high')]
+}
+
 
 asyncio.run(main())
