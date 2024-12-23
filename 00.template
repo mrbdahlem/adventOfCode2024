@@ -77,7 +77,7 @@ part1Wrong = {
 
 part2Wrong = {
     "samp": [],
-    "full": [(945683, 'low'), (1071736, 'high')]
+    "full": [(0, 'low'), (0, 'high')]
 }
 
 
